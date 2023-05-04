@@ -12,7 +12,7 @@ BEGIN
         INNER JOIN projects
         ON projects.id = corrections.project_id
         where corrections.user_id = user_id)
-    UPDATE users SET average_score = computed_average_weighted_score WHERE users.id = user_id;
+    WHERE users.id = user_id;
 END //
 
 DELIMITER ;
