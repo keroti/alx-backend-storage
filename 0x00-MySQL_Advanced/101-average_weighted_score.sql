@@ -3,7 +3,7 @@
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS ComputeAverageWeightedScoreForUsers;
-CREATE PROCEDURE ComputeAverageWeightedScoreForUsers ()
+CREATE PROCEDURE ComputeAverageWeightedScoreForUsers()
 BEGIN
     UPDATE users
     SET average_score = (
@@ -11,7 +11,7 @@ BEGIN
         FROM corrections
         INNER JOIN projects
         ON projects.id = corrections.project_id
-        where corrections.user_id = user_id)
+        where corrections.user_id = users.id);
 END //
 
 DELIMITER ;
