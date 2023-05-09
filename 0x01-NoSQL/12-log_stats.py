@@ -20,10 +20,10 @@ for method in methods:
     print(f"    method {method}: {num_docs}")
 
 # Number of documents with method GET and path /status
-num_status_check = nginx_collection.count_documents({"method": "GET", "path": "/status"})
+num_status_check = nginx_collection.count_documents(
+    {"method": "GET", "path": "/status"}
+    )
 print(f"{num_status_check} status check")
-
-
 
 if __name__ == '__main__':
     run()
