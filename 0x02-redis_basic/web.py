@@ -2,12 +2,13 @@
 function to implement a get_page function
 (prototype: def get_page(url: str) -> str:).
 '''
+from typing import Callable
 from functools import wraps
 import requests
 import redis
 
 
-def call_history(method):
+def call_history(method: Callable) -> Callable:
     '''
     Function to store the history of inputs and outputs
     for a particular function
