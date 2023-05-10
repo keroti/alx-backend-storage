@@ -2,6 +2,8 @@
 """
 Function that defines a Cache class that can be used to store data in Redis.
 """
+from typing import Union
+from functools import wraps
 import uuid
 import redis
 
