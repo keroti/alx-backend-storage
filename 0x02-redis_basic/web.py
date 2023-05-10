@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 '''
 function to implement a get_page function
 (prototype: def get_page(url: str) -> str:).
