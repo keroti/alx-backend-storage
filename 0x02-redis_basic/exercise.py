@@ -37,12 +37,12 @@ def call_history(method):
         '''
         return results
         '''
-        inputs_key = "{}:inputs".format(method.__qualname__)
-        outputs_key = "{}:outputs".format(method.__qualname__)
+        inputs = "{}:inputs".format(method.__qualname__)
+        outputs = "{}:outputs".format(method.__qualname__)
 
-        self._redis.rpush(inputs_key, str(args))
+        self._redis.rpush(inputs, str(args))
         result = method(self, *args, **kwargs)
-        self._redis.rpush(outputs_key, result)
+        self._redis.rpush(outputs, result)
 
         return result
     return wrap
@@ -51,11 +51,11 @@ def call_history(method):
 def replay(func: Callable) -> None:
     """ Display the history of calls of a particular function """
     func_name = func.__qualname__
-    inputs_key = f"{func_name}:inputs"
-    outputs_key = f"{func_name}:outputs"
+    inputs = f"{func_name}:inputs"
+    outputs = f"{func_name}:outputs"
 
-    inputs = cache._redis.lrange(inputs_key, 0, -1)
-    outputs = cache._redis.lrange(outputs_key, 0, -1)
+    inputs = cache._redis.lrange(inputs, 0, -1)
+    outputs = cache._redis.lrange(outputs, 0, -1)
 
     count = len(inputs)
     print(f"{func_name} was called {count} times:")
