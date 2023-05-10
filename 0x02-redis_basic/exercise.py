@@ -11,7 +11,8 @@ import functools
 
 def count_calls(method: Callable) -> Callable:
     """
-    function that takes a single method Callable argument and returns a Callable
+    function that takes a single method Callable argument
+    and returns a Callable
     """
     key = method.__qualname__
 
@@ -28,7 +29,8 @@ def count_calls(method: Callable) -> Callable:
 
 def call_history(method):
     '''
-    Function to store the history of inputs and outputs for a particular function
+    Function to store the history of inputs and outputs
+    for a particular function
     '''
     @wraps(method)
     def wrap(self, *args, **kwargs):
@@ -79,14 +81,15 @@ class Cache:
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
-        Generates a random key, stores the input(redis data) using the key 
+        Generates a random key, stores the input(redis data) using the key
         and return it.
         """
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float, None]:
+    def get(self, key: str, fn: Callable = None) -> Union[str, bytes,
+                                                          int, float, None]:
         """
         Get data and convert it using fn to format you want
         """
