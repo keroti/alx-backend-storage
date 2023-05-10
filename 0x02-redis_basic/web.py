@@ -2,36 +2,42 @@
 function to implement a get_page function
 (prototype: def get_page(url: str) -> str:).
 '''
-from typing import Callable
-from functools import wraps
 import requests
 import redis
+from functools import wraps
 
+# create Redis client
 redis_client = redis.Redis()
 
 
-def call_history(method: Callable) -> Callable:
+def track_calls(func):
     '''
-    Function to store the history of inputs and outputs
-    for a particular function
+    Function for tracking number of times a function is called
     '''
-    @wraps(method)
+    @wraps(func)
     def wrapper(*args, **kwargs):
+        # increment count key for URL
         url = args[0]
-        redis_client.incr(f"count:{url}")
-        cached = redis_client.get(f'{url}')
-        if cached:
-            return cached.decode('utf-8')
-        redis_client.setex(f'{url}, 10, {method(url)}')
-        return method(*args, **kwargs)
+        count_key = f"count:{url}"
+        redis_client.incr(count_key)
+        # call wrapped function
+        return func(*args, **kwargs)
     return wrapper
 
 
-@call_history
-def get_page(url: str) -> str:
-    """get a page and cache value"""
+@track_calls
+def get_page(url):
+    """
+    get a page content with cache and tracker
+    """
+    content = redis_client.get(url)
+    if content is not None:
+        return content.decode()
+    # make request and store result in cache with expiration time
     response = requests.get(url)
-    return response.text
+    content = response.text
+    redis_client.setex(url, 10, content)
+    return content
 
 
 if __name__ == "__main__":
