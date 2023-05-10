@@ -2,10 +2,28 @@
 """
 Function that defines a Cache class that can be used to store data in Redis.
 """
+import redis
 from typing import Union, Callable
 from functools import wraps
 import uuid
-import redis
+import functools
+
+
+def count_calls(method: Callable) -> Callable:
+    """
+    function that takes a single method Callable argument and returns a Callable
+    """
+    key = method.__qualname__
+
+    @functools.wraps(method)
+    def wrap(self, *args, **kwargs):
+        """
+        function to increment count and call original method
+        """
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrap
 
 
 class Cache:
@@ -20,6 +38,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Generates a random key, stores the input(redis data) using the key 
