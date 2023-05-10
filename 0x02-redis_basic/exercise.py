@@ -32,20 +32,20 @@ def call_history(method):
     Function to store the history of inputs and outputs
     for a particular function
     '''
+    method_key = method.__qualname__
+    inputs = "{}:inputs".format(method.__qualname__)
+    outputs = "{}:outputs".format(method.__qualname__)
+
     @wraps(method)
-    def wrap(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs):
         '''
         return results
         '''
-        inputs = "{}:inputs".format(method.__qualname__)
-        outputs = "{}:outputs".format(method.__qualname__)
-
         self._redis.rpush(inputs, str(args))
-        result = method(self, *args, **kwargs)
-        self._redis.rpush(outputs, result)
-
-        return result
-    return wrap
+        data = method(self, *args, **kwargs)
+        self._redis.rpush(outputs, str(data))
+        return data
+    return wrapper
 
 
 def replay(func: Callable) -> None:
