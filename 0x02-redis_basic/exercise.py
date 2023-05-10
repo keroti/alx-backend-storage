@@ -3,7 +3,7 @@
 Function that defines a Cache class that can be used to store data in Redis.
 """
 import redis
-from typing import Union, Callable, Optional, List
+from typing import Union, Callable
 from functools import wraps
 import uuid
 import functools
@@ -48,28 +48,28 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None) -> Union[str, bytes, int, List[str], List[bytes], List[int]]:
+    def get(self, key: str, fn: Callable = None) -> Union[str, bytes, int, float, None]:
         """
         Get data and convert it using fn to format you want
         """
-        value = self._redis.get(key)
-        if value is None:
+        data = self._redis.get(key)
+        if data is None:
             return None
         if fn is not None:
-            value = fn(value)
-        return value
+            data = fn(data)
+        return data
 
-    def get_str(self, key: str) -> str:
+    def get_str(self, key: str) -> Union[str, None]:
         """
         data from Redis is converted back to a string
         """
-        return self.get(key, lambda d: d.decode('utf-8'))
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
-    def get_int(self, key: str) -> int:
+    def get_int(self, key: str) -> Union[int, None]:
         """
         data from Redis is converted back to an integer
         """
-        return self.get(key, int)
+        return self.get(key, fn=int)
 
 
 if __name__ == '__main__':
