@@ -3,7 +3,7 @@ function to implement a get_page function
 (prototype: def get_page(url: str) -> str:).
 '''
 from functools import wraps
-import uuid
+import requests
 import redis
 
 
@@ -13,32 +13,23 @@ def call_history(method):
     for a particular function
     '''
     @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        inputs_key = "{}:inputs".format(method.__qualname__)
-        outputs_key = "{}:outputs".format(method.__qualname__)
-
-        self._redis.rpush(inputs_key, str(args))
-        output = method(self, *args, **kwargs)
-        self._redis.rpush(outputs_key, output)
-
-        return output
+    def wrapper(*args, **kwargs):
+        url = args[0]
+        redis_client.incr(f"count:{url}")
+        cached = redis_client.get(f'{url}')
+        if cached:
+            return cached.decode('utf-8')
+        redis_client.setex(f'{url}, 10, {method(url)}')
+        return method(*args, **kwargs)
     return wrapper
 
 
-class Cache:
-    """
-    Class Cache.
-    """
+@call_history
+def get_page(url: str) -> str:
+    """get a page and cache value"""
+    response = requests.get(url)
+    return response.text
 
-    def __init__(self):
-        self._redis = redis.Redis()
 
-    @call_history
-    def store(self, value):
-        """
-        Generates a random key, stores the input(redis data) using the key
-        and return it.
-        """
-        key = str(uuid.uuid4())
-        self._redis.set(key, value)
-        return key
+if __name__ == "__main__":
+    get_page('http://slowwly.robertomurray.co.uk')
