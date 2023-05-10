@@ -25,6 +25,19 @@ def count_calls(method: Callable) -> Callable:
 
     return wrap
 
+def call_history(method):
+    @wraps(method)
+    def wrap(self, *args, **kwargs):
+        inputs_key = "{}:inputs".format(method.__qualname__)
+        outputs_key = "{}:outputs".format(method.__qualname__)
+        
+        self._redis.rpush(inputs_key, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(outputs_key, result)
+        
+        return result
+    return wrap
+
 
 class Cache:
     """
