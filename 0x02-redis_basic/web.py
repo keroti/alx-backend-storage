@@ -7,6 +7,8 @@ from functools import wraps
 import requests
 import redis
 
+redis_client = redis.Redis()
+
 
 def call_history(method: Callable) -> Callable:
     '''
